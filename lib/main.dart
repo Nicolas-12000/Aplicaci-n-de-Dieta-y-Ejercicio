@@ -83,18 +83,41 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = [
-    const DashboardScreen(),
-    const DietaScreen(),
-    const EjercicioScreen(),
-    const ConfiguracionScreen(),
+    // Create placeholders; we'll instantiate lazily in build to avoid
+    // doing heavy work for all screens on startup.
+    const SizedBox.shrink(), // Dashboard placeholder
+    const SizedBox.shrink(), // Dieta placeholder
+    const SizedBox.shrink(), // Ejercicio placeholder
+    const SizedBox.shrink(), // Configuracion placeholder
   ];
+
+  final List<Widget?> _screenInstances = [null, null, null, null];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
-        children: _screens,
+        children: List.generate(_screens.length, (i) {
+          // instantiate the screen on first access and cache it
+          if (_screenInstances[i] == null) {
+            switch (i) {
+              case 0:
+                _screenInstances[i] = const DashboardScreen();
+                break;
+              case 1:
+                _screenInstances[i] = const DietaScreen();
+                break;
+              case 2:
+                _screenInstances[i] = const EjercicioScreen();
+                break;
+              case 3:
+                _screenInstances[i] = const ConfiguracionScreen();
+                break;
+            }
+          }
+          return _screenInstances[i]!;
+        }),
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
